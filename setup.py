@@ -13,7 +13,7 @@ test_requires = parse_requirements("requirements.txt", session="snowchnage")
 
 setup(
     name="snowchange",  # Replace with your own username
-    version="0.0.2",
+    version="0.0.3",
     author="jamesweakley/Traey Hatch",
     author_email="traey.hatch@rackspace.com",
     description="Python package for managing Snowflake schema.",

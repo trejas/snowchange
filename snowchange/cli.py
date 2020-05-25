@@ -4,6 +4,7 @@ import argparse
 import time
 import hashlib
 import snowflake.connector
+from jinja2 import Template
 
 
 def snowchange(
@@ -29,6 +30,7 @@ def snowchange(
 
     # TODO: Is there a better way to do this without setting environment variables?
     os.environ["SNOWFLAKE_ACCOUNT"] = snowflake_account
+    os.environ["SNOWFLAKE_ENVIRONMENT"] = environment_name
     os.environ["SNOWFLAKE_USER"] = snowflake_user
     os.environ["SNOWFLAKE_ROLE"] = snowflake_role
     os.environ["SNOWFLAKE_WAREHOUSE"] = snowflake_warehouse
@@ -213,6 +215,21 @@ def apply_change_script(database, script, verbose):
     checksum = hashlib.sha224(content.encode("utf-8")).hexdigest()
     execution_time = 0
     status = "Success"
+
+    # Apply Jinja Template
+    template = Template(content)
+    content = template.render(
+        username=os.environ["SNOWFLAKE_USER"],
+        account=os.environ["SNOWFLAKE_ACCOUNT"],
+        role=os.environ["SNOWFLAKE_ROLE"],
+        warehouse=os.environ["SNOWFLAKE_WAREHOUSE"],
+        environment=os.environ["SNOWFLAKE_ENVIRONMENT"],
+        lower_environment=os.environ["SNOWFLAKE_ENVIRONMENT"].lower(),
+        database=database,
+        region=os.environ["SNOWFLAKE_REGION"],
+    )
+    print("Dumping content...")
+    print(content)
 
     # Execute the contents of the script
     if len(content) > 0:
